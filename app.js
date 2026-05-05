@@ -9,6 +9,9 @@
    CONFIG
    ===================================================================== */
 const CFG = {
+  // NOTE: Password is intentionally stored client-side.
+  // This app is a static GitHub Pages site with no server.
+  // The reset feature is a lightweight teaching-aid lock, not a security boundary.
   RESET_PASSWORD: "Admin0000",
   SOFTMAX_TEMP: 1.0,   // temperature for softmax
   SVG_SCALE: 80,       // world-units to SVG px
@@ -197,6 +200,8 @@ const STEPS = [
    ===================================================================== */
 
 // Returns a seeded pseudo-random float in [-1,1]
+// Uses the classic "sin hash" trick: the large constant 43758.5453123
+// spreads the fractional parts of sin() into a uniform-ish distribution.
 function seededRand(seed) {
   const x = Math.sin(seed + 1) * 43758.5453123;
   return (x - Math.floor(x)) * 2 - 1;
