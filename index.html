@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vector Lab — Comprendre les modèles de langage</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div>
+          <h1 id="title"></h1>
+          <p id="subtitle"></p>
+        </div>
+        <div class="topbar-actions">
+          <button id="langToggle" class="pill-btn" aria-label="language toggle"></button>
+          <button id="resetBtn" class="pill-btn danger"></button>
+        </div>
+      </header>
+
+      <section class="score-strip">
+        <div class="badge" id="progressLabel"></div>
+        <div class="badge" id="mistakesLabel"></div>
+        <div class="badge emphasis" id="lowerIsBetter"></div>
+      </section>
+
+      <main class="panel-grid">
+        <section class="left-panel card">
+          <h2 id="sentenceTitle"></h2>
+          <p id="sentenceDisplay" class="sentence-display"></p>
+          <p id="instructionText" class="instruction"></p>
+          <button id="commitBtn" class="primary-btn"></button>
+        </section>
+
+        <section class="viz-panel card">
+          <svg id="pipelineSvg" viewBox="0 0 1200 560" aria-label="model pipeline"></svg>
+          <div class="controls-row">
+            <div class="control-block">
+              <label id="knobLabel" for="knobRing"></label>
+              <div id="knobWrap" class="knob-wrap" role="slider" tabindex="0" aria-valuemin="-180" aria-valuemax="180" aria-valuenow="0">
+                <svg id="knobRing" viewBox="0 0 160 160">
+                  <circle cx="80" cy="80" r="62" class="knob-track"></circle>
+                  <circle cx="80" cy="80" r="62" class="knob-progress"></circle>
+                  <circle cx="80" cy="80" r="40" class="knob-center"></circle>
+                  <line id="knobNeedle" x1="80" y1="80" x2="80" y2="26" class="knob-needle"></line>
+                </svg>
+              </div>
+              <p id="knobValue" class="control-value"></p>
+            </div>
+
+            <div class="control-block slider-block">
+              <label id="sliderLabel" for="stretchSlider"></label>
+              <input id="stretchSlider" type="range" min="-1" max="1" step="0.001" value="0" />
+              <p id="sliderValue" class="control-value"></p>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <div id="finalOverlay" class="overlay hidden" aria-live="polite">
+        <div class="overlay-card">
+          <h2 id="finalTitle"></h2>
+          <p id="finalBody"></p>
+        </div>
+      </div>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
