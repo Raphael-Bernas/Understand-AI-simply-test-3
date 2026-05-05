@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Vector Explorer</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <h1 id="title">Comprendre l'IA avec des vecteurs</h1>
+      <div class="lang-toggle" role="group" aria-label="Language">
+        <button id="lang-fr" class="active">FR</button>
+        <button id="lang-en">GB</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="panel intro-panel">
+        <p id="subtitle"></p>
+        <p id="goal"></p>
+        <div class="score-line">
+          <strong id="score-label"></strong>
+          <span id="score-value">0</span>
+          <span id="lower-better"></span>
+        </div>
+        <div class="sentence-block">
+          <h2 id="sentence-title"></h2>
+          <p id="sentence-prefix"></p>
+          <p id="sentence-progress"></p>
+        </div>
+      </section>
+
+      <section class="panel viz-panel">
+        <svg id="viz" viewBox="0 0 1000 520" aria-label="Pipeline des vecteurs et probabilités">
+          <defs>
+            <marker id="arrowRed" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L6,3 z" fill="#e84141"></path>
+            </marker>
+            <marker id="arrowBlue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L6,3 z" fill="#54a0ff"></path>
+            </marker>
+          </defs>
+        </svg>
+      </section>
+
+      <section class="panel controls-panel">
+        <div class="control-wrap">
+          <h3 id="knob-title"></h3>
+          <div id="knob" class="knob" tabindex="0" role="slider" aria-valuemin="-180" aria-valuemax="180"></div>
+          <p id="knob-value"></p>
+          <p id="knob-hint" class="hint"></p>
+        </div>
+
+        <div class="control-wrap">
+          <h3 id="slider-title"></h3>
+          <div id="slider-track" class="slider-track">
+            <div id="slider-thumb" class="slider-thumb" tabindex="0" role="slider" aria-valuemin="-1" aria-valuemax="1"></div>
+          </div>
+          <p id="slider-value"></p>
+          <p id="slider-hint" class="hint"></p>
+        </div>
+
+        <div class="buttons">
+          <button id="enter-btn"></button>
+          <button id="reset-btn" class="danger"></button>
+        </div>
+        <p id="instruction"></p>
+      </section>
+    </main>
+
+    <footer class="footer-note" id="footer-note"></footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>
