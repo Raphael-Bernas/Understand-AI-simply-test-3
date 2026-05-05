@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Understand AI Simply — Matrix Model Game</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="app-shell" aria-labelledby="app-title">
+    <header class="top-bar" aria-label="Activity controls">
+      <div class="brand-block">
+        <p class="eyebrow" id="eyebrow">Comprendre l’IA simplement</p>
+        <h1 id="app-title">Le modèle transforme l’information</h1>
+      </div>
+      <div class="status-cluster">
+        <div class="status-card">
+          <span id="score-label">Erreurs</span>
+          <strong id="score-value">0</strong>
+        </div>
+        <div class="status-card wide">
+          <span id="progress-label">Phrase</span>
+          <strong id="progress-value">1 / 5</strong>
+        </div>
+        <div class="language-toggle" aria-label="Language selector">
+          <button id="lang-fr" class="active" type="button" aria-pressed="true">FR</button>
+          <button id="lang-gb" type="button" aria-pressed="false">GB</button>
+        </div>
+        <button id="reset-button" class="reset-button" type="button">Recommencer</button>
+      </div>
+    </header>
+
+    <section class="stage-card" aria-label="Interactive model pipeline">
+      <svg id="pipeline-svg" viewBox="0 0 1200 620" role="img" aria-labelledby="svg-title svg-desc">
+        <title id="svg-title">Interactive language model transformation pipeline</title>
+        <desc id="svg-desc">A sentence prefix is transformed into a vector, passed through one visible matrix, then converted into ranked word probabilities.</desc>
+      </svg>
+    </section>
+
+    <section class="bottom-panel" aria-live="polite">
+      <div>
+        <h2 id="instruction-title">À vous de régler le modèle</h2>
+        <p id="instruction-copy">Tournez le bouton et ajustez l’étirement. Quand le mot correct est en haut, appuyez sur Entrée.</p>
+      </div>
+      <div class="hint-summary" id="hint-summary">Les petites flèches donnent une direction approximative pour réduire l’erreur.</div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
