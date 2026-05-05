@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Comprendre l'IA — jeu éducatif</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <header id="topbar">
+    <div class="topbar-left">
+      <span id="app-title">Comprendre l'IA</span>
+    </div>
+    <div class="topbar-center">
+      <span id="progress-label">Phrase 1/5 · Mot 1/?</span>
+    </div>
+    <div class="topbar-right">
+      <button id="lang-btn" class="pill-btn">🇬🇧 EN</button>
+      <div class="score-badge">
+        <span id="score-label-text">Erreurs</span>:
+        <span id="score-value">0</span>
+      </div>
+      <button id="reset-btn" class="pill-btn danger">↺ Reset</button>
+    </div>
+  </header>
+
+  <!-- MAIN GRID -->
+  <main id="main-grid">
+
+    <!-- LEFT PANEL -->
+    <section id="left-panel" class="panel">
+      <h2 class="panel-title" id="lp-title">Phrase en cours</h2>
+
+      <div id="sentence-display" class="sentence-box">
+        <!-- Sentence with blanks rendered here -->
+      </div>
+
+      <div class="progress-track">
+        <div id="step-dots"></div>
+        <p id="step-label" class="meta-text"></p>
+      </div>
+
+      <div class="instruction-box">
+        <p id="instruction-text"></p>
+      </div>
+    </section>
+
+    <!-- CENTER PANEL -->
+    <section id="center-panel" class="panel">
+      <h2 class="panel-title" id="cp-title">Le modèle</h2>
+
+      <!-- Controls -->
+      <div id="controls-row">
+        <div class="control-group">
+          <label class="ctrl-label" id="ctrl-rotation-label">Rotation</label>
+          <div class="knob-wrapper">
+            <input type="range" id="rotation-slider" min="-180" max="180" value="0" step="1" />
+          </div>
+          <span class="ctrl-value" id="rotation-value">0°</span>
+        </div>
+        <div class="control-group">
+          <label class="ctrl-label" id="ctrl-stretch-label">Étirement</label>
+          <div class="knob-wrapper">
+            <input type="range" id="stretch-slider" min="0.2" max="3.0" value="1.0" step="0.05" />
+          </div>
+          <span class="ctrl-value" id="stretch-value">1.00</span>
+        </div>
+      </div>
+
+      <!-- Spaces row -->
+      <div id="spaces-row">
+        <div class="space-block">
+          <p class="space-label" id="label-original">Espace d'entrée</p>
+          <svg id="svg-original" viewBox="-110 -110 220 220" xmlns="http://www.w3.org/2000/svg"></svg>
+        </div>
+
+        <!-- Matrix card -->
+        <div id="matrix-card">
+          <p class="space-label" id="label-matrix">Matrice M</p>
+          <div id="matrix-display">
+            <div class="matrix-bracket left-bracket"></div>
+            <table id="matrix-table">
+              <tr><td id="m00">1.00</td><td id="m01">0.00</td></tr>
+              <tr><td id="m10">0.00</td><td id="m11">1.00</td></tr>
+            </table>
+            <div class="matrix-bracket right-bracket"></div>
+          </div>
+          <div id="hint-box">
+            <p id="hint-rotation" class="hint-line"></p>
+            <p id="hint-stretch" class="hint-line"></p>
+          </div>
+        </div>
+
+        <div class="space-block">
+          <p class="space-label" id="label-transformed">Espace transformé</p>
+          <svg id="svg-transformed" viewBox="-110 -110 220 220" xmlns="http://www.w3.org/2000/svg"></svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT PANEL -->
+    <section id="right-panel" class="panel">
+      <h2 class="panel-title" id="rp-title">Mots candidats</h2>
+      <ol id="word-list"></ol>
+      <p id="enter-hint" class="meta-text"></p>
+    </section>
+
+  </main>
+
+  <!-- BOTTOM STRIP -->
+  <footer id="bottom-strip">
+    <span id="bottom-hint"></span>
+  </footer>
+
+  <!-- MODALS -->
+  <div id="modal-overlay" class="modal-overlay hidden">
+    <div class="modal-box" id="modal-reset">
+      <h3 id="modal-title">Réinitialiser</h3>
+      <p id="modal-body">Entrez le mot de passe administrateur :</p>
+      <input type="password" id="modal-password" autocomplete="off" />
+      <div class="modal-actions">
+        <button id="modal-cancel" class="pill-btn">Annuler</button>
+        <button id="modal-confirm" class="pill-btn danger">Confirmer</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-end-overlay" class="modal-overlay hidden">
+    <div class="modal-box">
+      <h3 id="end-title">Partie terminée</h3>
+      <p id="end-body"></p>
+      <div class="modal-actions">
+        <button id="end-close" class="pill-btn">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
