@@ -673,6 +673,181 @@ input[type="range"]::-moz-range-thumb {
 }
 
 /* =====================================================================
+   PHASE BADGE
+   ===================================================================== */
+.phase-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  padding: 2px 9px;
+  border-radius: 100px;
+  text-transform: uppercase;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+.phase-test {
+  background: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffc107;
+}
+
+.phase-scored {
+  background: #d1ecf1;
+  color: #0c5460;
+  border: 1px solid #17a2b8;
+}
+
+/* =====================================================================
+   CTRL META ROW (value + range indicator)
+   ===================================================================== */
+.ctrl-meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+}
+
+.ctrl-range {
+  font-size: 11px;
+  color: var(--text-hint);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  transition: color 0.3s;
+}
+
+.result-mode .ctrl-range {
+  color: var(--text-hint);
+}
+
+/* =====================================================================
+   BLANK TABS (right panel)
+   ===================================================================== */
+.blank-tabs {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.blank-tab {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 100px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  font-family: var(--font);
+}
+
+.blank-tab:hover {
+  background: var(--bg);
+}
+
+.blank-tab.active-blank-0 {
+  background: #e8f0fb;
+  border-color: #0071e3;
+  color: #0071e3;
+}
+
+.blank-tab.active-blank-1 {
+  background: #eeeeff;
+  border-color: #5856d6;
+  color: #5856d6;
+}
+
+/* =====================================================================
+   RESULT BANNER (left panel, below sentence)
+   ===================================================================== */
+.result-banner {
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.result-banner.hidden {
+  display: none;
+}
+
+.result-banner.all-correct {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid var(--correct);
+}
+
+.result-banner.some-wrong {
+  background: var(--danger-light);
+  color: var(--danger);
+  border: 1px solid var(--wrong);
+}
+
+/* =====================================================================
+   RESULT MODE — disable sliders visually
+   ===================================================================== */
+.result-mode input[type="range"] {
+  pointer-events: none;
+  opacity: 0.35;
+}
+
+/* =====================================================================
+   DOT STYLES (test vs scored)
+   ===================================================================== */
+.dot-test {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: transparent;
+  border: 2px solid var(--border);
+  flex-shrink: 0;
+}
+
+.dot-test.active {
+  border-color: #ffc107;
+  background: #fff3cd;
+}
+
+.dot-test.done-correct {
+  background: var(--correct);
+  border-color: var(--correct);
+}
+
+.dot-test.done-wrong {
+  background: var(--wrong);
+  border-color: var(--wrong);
+}
+
+.dot-sep {
+  font-size: 12px;
+  color: var(--border);
+  line-height: 10px;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+/* =====================================================================
+   ACCENT BUTTON
+   ===================================================================== */
+.pill-btn.accent {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.pill-btn.accent:hover {
+  background: #005dc7;
+  border-color: #005dc7;
+}
+
+/* =====================================================================
    RESPONSIVE — prevent total breakage on narrow viewports
    ===================================================================== */
 @media (max-width: 900px) {
