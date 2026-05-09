@@ -16,7 +16,7 @@ const CFG = {
   SVG_SCALE:         80,
   GRID_STEPS:        5,
   TEST_SENTENCES:    2,       // sentences in training phase (not scored)
-  SCORED_SENTENCES:  8,       // sentences in scored phase
+  SCORED_SENTENCES:  10,       // sentences in scored phase
   SHRINK_FACTOR:     0.72,    // stronger range-shrink multiplier for clearer precision progression
   INITIAL_ROT_RANGE: 180,     // initial ± rotation range in degrees
   INITIAL_STR_RANGE: 1.8,     // initial ± stretch delta from 1.0
