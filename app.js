@@ -455,11 +455,15 @@ function buildBlankWordVecs(poolIdx, blankIdx) {
   const totalSteps    = CFG.TEST_SENTENCES + CFG.SCORED_SENTENCES;
   const stepProgress  = clamp(currentGlobalStep() / (totalSteps - 1), 0, 1);
 
-  // The second blank is intentionally less aligned early, then converges.
+  // 12° → 2° offset across the 10 played sentences:
+  // early rounds intentionally misalign blank #2 (likely wrong),
+  // then the offset decays so improved precision can recover accuracy.
   const blankOffsetDeg = blankIdx === 1 ? (12 - 10 * stepProgress) : 0;
   const correctAngle   = alpha + targetRad + degToRad(blankOffsetDeg);
 
-  // Early steps are harder for blank #2, then progressively fairer.
+  // Correct-word advantage and distractor pressure both relax over time:
+  // biasPenalty: 0.30 → 0.06, distractorBoost: 0.20 → 0.04.
+  // This creates a "hard early, fair later" curve without making late rounds trivial.
   const biasPenalty = blankIdx === 1 ? (0.30 - 0.24 * stepProgress) : 0;
   const distractorBoost = blankIdx === 1 ? (0.20 - 0.16 * stepProgress) : 0;
 
@@ -910,6 +914,7 @@ function render() {
 
   // Precision HUD (window shrinks, precision grows)
   const p = precisionProgress();
+  // Keep a visible minimum fill so bars remain legible even near extremes.
   const windowPct = Math.max(8, (1 - p) * 100);
   const gainPct   = Math.max(4, p * 100);
   const level     = Math.min(9, Math.floor(p * 8) + 1);
