@@ -411,7 +411,7 @@ function currentSentDef() {
 
 // Pool index for the current game sentence
 function currentPoolIdx() {
-  const i = STATE.phase === "test" ? STATE.phaseStep : 2 + STATE.phaseStep;
+  const i = STATE.phase === "test" ? STATE.phaseStep : CFG.TEST_SENTENCES + STATE.phaseStep;
   return STATE.selectedSentences[i];
 }
 
