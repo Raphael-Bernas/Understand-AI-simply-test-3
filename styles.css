@@ -330,6 +330,83 @@ input[type="range"]::-moz-range-thumb {
 }
 
 /* =====================================================================
+   PRECISION PANEL
+   ===================================================================== */
+.precision-panel {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.precision-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+#precision-title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+}
+
+.precision-level {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  background: var(--accent-light);
+  border: 1px solid #cbe0fa;
+  border-radius: 999px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+
+.precision-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.precision-label {
+  width: 152px;
+  min-width: 152px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.precision-track {
+  flex: 1;
+  height: 8px;
+  background: #eceef2;
+  border: 1px solid #dde0e6;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.precision-fill {
+  height: 100%;
+  transition: width 0.28s ease, background-color 0.28s ease;
+}
+
+.window-fill {
+  background: linear-gradient(90deg, #ffb347, #ff6b6b);
+}
+
+.gain-fill {
+  background: linear-gradient(90deg, #5ac8fa, #34c759);
+}
+
+/* =====================================================================
    CENTER PANEL — SPACES ROW
    ===================================================================== */
 #spaces-row {

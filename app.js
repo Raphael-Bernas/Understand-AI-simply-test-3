@@ -17,9 +17,10 @@ const CFG = {
   GRID_STEPS:        5,
   TEST_SENTENCES:    2,       // sentences in training phase (not scored)
   SCORED_SENTENCES:  8,       // sentences in scored phase
-  SHRINK_FACTOR:     0.82,    // range multiplier applied after each Enter press
+  SHRINK_FACTOR:     0.72,    // stronger range multiplier for clearer precision progression
   INITIAL_ROT_RANGE: 180,     // initial ± rotation range in degrees
   INITIAL_STR_RANGE: 1.8,     // initial ± stretch delta from 1.0
+  MAX_ZOOM_GAIN:     2.2,     // visual zoom gain in transformed space at max precision
   NUM_WORDS:         20,
   BLANK_COLORS:      ["#0071e3", "#5856d6"],
 };
@@ -55,6 +56,10 @@ const T = {
     blankTab:           (n) => `Blanc ${n}`,
     rotRange:           (v) => `±${v}°`,
     strRange:           (v) => `±${v}`,
+    precisionTitle:     "Précision",
+    precisionWindow:    "Fenêtre d'ajustement",
+    precisionGain:      "Gain de précision",
+    precisionLevel:     (n) => `Niveau ${n}`,
     resultCorrect:      (k, n) => k === n ? `Parfait ! ${k}/${n} ✓` : `${k}/${n} correct${k > 1 ? "s" : ""}`,
     modalResetTitle:    "Réinitialiser",
     modalResetBody:     "Entrez le mot de passe administrateur :",
@@ -96,6 +101,10 @@ const T = {
     blankTab:           (n) => `Blank ${n}`,
     rotRange:           (v) => `±${v}°`,
     strRange:           (v) => `±${v}`,
+    precisionTitle:     "Precision",
+    precisionWindow:    "Adjustment window",
+    precisionGain:      "Precision gain",
+    precisionLevel:     (n) => `Level ${n}`,
     resultCorrect:      (k, n) => k === n ? `Perfect! ${k}/${n} ✓` : `${k}/${n} correct`,
     modalResetTitle:    "Reset Game",
     modalResetBody:     "Enter the administrator password:",
@@ -382,6 +391,18 @@ function softmax(logits) {
 
 function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
 
+function currentGlobalStep() {
+  return STATE.phase === "test"
+    ? STATE.phaseStep
+    : CFG.TEST_SENTENCES + STATE.phaseStep;
+}
+
+function precisionProgress() {
+  const rotP = 1 - (STATE.rotRange / CFG.INITIAL_ROT_RANGE);
+  const strP = 1 - (STATE.stretchRange / CFG.INITIAL_STR_RANGE);
+  return clamp((rotP + strP) * 0.5, 0, 1);
+}
+
 /* =====================================================================
    SEEDED PSEUDO-RANDOM (deterministic word vectors)
    ===================================================================== */
@@ -431,17 +452,27 @@ function makeBlankCandidates(poolCode, lang, ci) {
 function buildBlankWordVecs(poolIdx, blankIdx) {
   const targetRad     = degToRad(sentTargetDeg(poolIdx));
   const alpha         = blankInputAngle(blankIdx);
-  const correctAngle  = alpha + targetRad;
+  const totalSteps    = CFG.TEST_SENTENCES + CFG.SCORED_SENTENCES;
+  const stepProgress  = clamp(currentGlobalStep() / (totalSteps - 1), 0, 1);
+
+  // The second blank is intentionally less aligned early, then converges.
+  const blankOffsetDeg = blankIdx === 1 ? (12 - 10 * stepProgress) : 0;
+  const correctAngle   = alpha + targetRad + degToRad(blankOffsetDeg);
+
+  // Early steps are harder for blank #2, then progressively fairer.
+  const biasPenalty = blankIdx === 1 ? (0.30 - 0.24 * stepProgress) : 0;
+  const distractorBoost = blankIdx === 1 ? (0.20 - 0.16 * stepProgress) : 0;
 
   const vecs   = [[Math.cos(correctAngle), Math.sin(correctAngle)]];
-  const biases = [0.5]; // small positive boost for the correct word
+  const biases = [0.5 - biasPenalty];
 
   for (let i = 1; i < CFG.NUM_WORDS; i++) {
     const angle = (i / CFG.NUM_WORDS) * 2 * Math.PI
                 + seededRand(poolIdx * 10000 + blankIdx * 1000 + i) * 0.55;
     const r     = 0.62 + seededRand(poolIdx * 20000 + blankIdx * 2000 + i) * 0.28;
     vecs.push([r * Math.cos(angle), r * Math.sin(angle)]);
-    biases.push(seededRand(poolIdx * 30000 + blankIdx * 3000 + i) * 0.15);
+    const baseBias = seededRand(poolIdx * 30000 + blankIdx * 3000 + i) * 0.15;
+    biases.push(i === 1 ? baseBias + distractorBoost : baseBias);
   }
 
   return { vecs, biases };
@@ -615,6 +646,14 @@ function renderSpaces() {
   const transformedVecs = inputVecs.map(v => matVec(M, v));
   const b1 = matVec(M, [1, 0]);
   const b2 = matVec(M, [0, 1]);
+
+  const p = precisionProgress();
+  const zoom = 1 + p * CFG.MAX_ZOOM_GAIN;
+  const half = 110 / zoom;
+  document.getElementById("svg-original")
+    .setAttribute("viewBox", "-110 -110 220 220");
+  document.getElementById("svg-transformed")
+    .setAttribute("viewBox", `${-half.toFixed(2)} ${-half.toFixed(2)} ${(half * 2).toFixed(2)} ${(half * 2).toFixed(2)}`);
 
   renderSpace(document.getElementById("svg-original"), inputVecs, colors, null);
   renderSpace(document.getElementById("svg-transformed"), transformedVecs, colors, [b1, b2]);
@@ -869,6 +908,15 @@ function render() {
   document.getElementById("rotation-range").textContent = t.rotRange(Math.round(STATE.rotRange));
   document.getElementById("stretch-range").textContent  = t.strRange(STATE.stretchRange.toFixed(2));
 
+  // Precision HUD (window shrinks, precision grows)
+  const p = precisionProgress();
+  const windowPct = Math.max(8, (1 - p) * 100);
+  const gainPct   = Math.max(4, p * 100);
+  const level     = Math.min(9, Math.floor(p * 8) + 1);
+  document.getElementById("precision-level").textContent = t.precisionLevel(level);
+  document.getElementById("precision-window-fill").style.width = `${windowPct.toFixed(1)}%`;
+  document.getElementById("precision-gain-fill").style.width   = `${gainPct.toFixed(1)}%`;
+
   // Score
   document.getElementById("score-value").textContent = STATE.mistakes;
 
@@ -901,6 +949,9 @@ function applyTranslations() {
   document.getElementById("label-original").textContent      = t.labelOriginal;
   document.getElementById("label-matrix").textContent        = t.labelMatrix;
   document.getElementById("label-transformed").textContent   = t.labelTransformed;
+  document.getElementById("precision-title").textContent     = t.precisionTitle;
+  document.getElementById("precision-window-label").textContent = t.precisionWindow;
+  document.getElementById("precision-gain-label").textContent   = t.precisionGain;
   document.getElementById("score-label-text").textContent    = t.scoreLabel;
   document.getElementById("reset-btn").textContent           = t.resetBtn;
   document.getElementById("lang-btn").textContent            = t.langBtn;
