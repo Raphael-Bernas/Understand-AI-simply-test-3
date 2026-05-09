@@ -17,10 +17,24 @@ const CFG = {
   GRID_STEPS:        5,
   TEST_SENTENCES:    2,       // sentences in training phase (not scored)
   SCORED_SENTENCES:  8,       // sentences in scored phase
-  SHRINK_FACTOR:     0.72,    // stronger range multiplier for clearer precision progression
+  SHRINK_FACTOR:     0.72,    // stronger range-shrink multiplier for clearer precision progression
   INITIAL_ROT_RANGE: 180,     // initial ± rotation range in degrees
   INITIAL_STR_RANGE: 1.8,     // initial ± stretch delta from 1.0
-  MAX_ZOOM_GAIN:     2.2,     // visual zoom gain in transformed space at max precision
+  ZOOM_GAIN_AT_MAX_PRECISION: 2.2, // final zoom is 3.2 (= 1.0 + 2.2) at full precision
+  BLANK2_OFFSET_START:        12,  // degrees at early steps
+  BLANK2_OFFSET_END:          2,   // degrees at late steps
+  BLANK2_BIAS_PENALTY_START:  0.30,
+  BLANK2_BIAS_PENALTY_END:    0.06,
+  BLANK2_DISTRACTOR_START:    0.20,
+  BLANK2_DISTRACTOR_END:      0.04,
+  MIN_WINDOW_PERCENT:         8,   // keep HUD bar visible at high precision
+  MIN_GAIN_PERCENT:           4,   // keep HUD bar visible at low precision
+  MAX_PRECISION_LEVEL:        9,
+  PRECISION_LEVEL_SPAN:       8,   // MAX_PRECISION_LEVEL - 1 (levels 1..9)
+  MIN_ROT_STEP:               0.5,
+  ROT_STEP_DIVISOR:           120,
+  MIN_STR_STEP:               0.01,
+  STR_STEP_DIVISOR:           90,
   NUM_WORDS:         20,
   BLANK_COLORS:      ["#0071e3", "#5856d6"],
 };
@@ -455,17 +469,26 @@ function buildBlankWordVecs(poolIdx, blankIdx) {
   const totalSteps    = CFG.TEST_SENTENCES + CFG.SCORED_SENTENCES;
   const stepProgress  = clamp(currentGlobalStep() / (totalSteps - 1), 0, 1);
 
-  // 12° → 2° offset across the 10 played sentences:
-  // early rounds intentionally misalign blank #2 (likely wrong),
+  // BLANK2_OFFSET_START° → BLANK2_OFFSET_END° across the 10 played sentences:
+  // early rounds intentionally misalign the second blank (index 1),
   // then the offset decays so improved precision can recover accuracy.
-  const blankOffsetDeg = blankIdx === 1 ? (12 - 10 * stepProgress) : 0;
+  const blankOffsetDeg = blankIdx === 1
+    ? CFG.BLANK2_OFFSET_START + (CFG.BLANK2_OFFSET_END - CFG.BLANK2_OFFSET_START) * stepProgress
+    : 0;
   const correctAngle   = alpha + targetRad + degToRad(blankOffsetDeg);
 
   // Correct-word advantage and distractor pressure both relax over time:
-  // biasPenalty: 0.30 → 0.06, distractorBoost: 0.20 → 0.04.
+  // biasPenalty: BLANK2_BIAS_PENALTY_START → BLANK2_BIAS_PENALTY_END
+  // distractorBoost: BLANK2_DISTRACTOR_START → BLANK2_DISTRACTOR_END.
   // This creates a "hard early, fair later" curve without making late rounds trivial.
-  const biasPenalty = blankIdx === 1 ? (0.30 - 0.24 * stepProgress) : 0;
-  const distractorBoost = blankIdx === 1 ? (0.20 - 0.16 * stepProgress) : 0;
+  const biasPenalty = blankIdx === 1
+    ? CFG.BLANK2_BIAS_PENALTY_START
+      + (CFG.BLANK2_BIAS_PENALTY_END - CFG.BLANK2_BIAS_PENALTY_START) * stepProgress
+    : 0;
+  const distractorBoost = blankIdx === 1
+    ? CFG.BLANK2_DISTRACTOR_START
+      + (CFG.BLANK2_DISTRACTOR_END - CFG.BLANK2_DISTRACTOR_START) * stepProgress
+    : 0;
 
   const vecs   = [[Math.cos(correctAngle), Math.sin(correctAngle)]];
   const biases = [0.5 - biasPenalty];
@@ -652,7 +675,7 @@ function renderSpaces() {
   const b2 = matVec(M, [0, 1]);
 
   const p = precisionProgress();
-  const zoom = 1 + p * CFG.MAX_ZOOM_GAIN;
+  const zoom = 1 + p * CFG.ZOOM_GAIN_AT_MAX_PRECISION;
   const half = 110 / zoom;
   document.getElementById("svg-original")
     .setAttribute("viewBox", "-110 -110 220 220");
@@ -915,9 +938,9 @@ function render() {
   // Precision HUD (window shrinks, precision grows)
   const p = precisionProgress();
   // Keep a visible minimum fill so bars remain legible even near extremes.
-  const windowPct = Math.max(8, (1 - p) * 100);
-  const gainPct   = Math.max(4, p * 100);
-  const level     = Math.min(9, Math.floor(p * 8) + 1);
+  const windowPct = Math.max(CFG.MIN_WINDOW_PERCENT, (1 - p) * 100);
+  const gainPct   = Math.max(CFG.MIN_GAIN_PERCENT, p * 100);
+  const level     = Math.min(CFG.MAX_PRECISION_LEVEL, Math.floor(p * CFG.PRECISION_LEVEL_SPAN) + 1);
   document.getElementById("precision-level").textContent = t.precisionLevel(level);
   document.getElementById("precision-window-fill").style.width = `${windowPct.toFixed(1)}%`;
   document.getElementById("precision-gain-fill").style.width   = `${gainPct.toFixed(1)}%`;
@@ -987,7 +1010,7 @@ function updateSliderRanges() {
   rotSlider.max   = rotMax.toFixed(1);
   rotSlider.value = STATE.rotation.toFixed(1);
   // Adaptive step: finer control as range shrinks
-  rotSlider.step  = Math.max(0.5, STATE.rotRange / 120).toFixed(1);
+  rotSlider.step  = Math.max(CFG.MIN_ROT_STEP, STATE.rotRange / CFG.ROT_STEP_DIVISOR).toFixed(1);
 
   // Stretch slider — centred on current stretch, clamped to [0.1, 5.0]
   const strMin = Math.max(0.1, STATE.stretch - STATE.stretchRange);
@@ -995,7 +1018,7 @@ function updateSliderRanges() {
   strSlider.min   = strMin.toFixed(2);
   strSlider.max   = strMax.toFixed(2);
   strSlider.value = STATE.stretch.toFixed(2);
-  strSlider.step  = Math.max(0.01, STATE.stretchRange / 90).toFixed(2);
+  strSlider.step  = Math.max(CFG.MIN_STR_STEP, STATE.stretchRange / CFG.STR_STEP_DIVISOR).toFixed(2);
 }
 
 /* =====================================================================
